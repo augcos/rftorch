@@ -4,7 +4,7 @@ from memory import Memory
 import copy
 
 class DQN_agent():
-    def __init__(self, DQN_network, loss=T.nn.MSELoss(), tau=100, epsilon=1.0, min_epsilon=0.01, 
+    def __init__(self, DQN_network, loss=T.nn.MSELoss(), tau=250, epsilon=1.0, min_epsilon=0.01, 
                 step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
         self.DQN_network = DQN_network
         self.target_network = copy.deepcopy(DQN_network)
