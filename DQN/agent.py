@@ -4,11 +4,10 @@ from memory import Memory
 import copy
 
 class DQN_agent():
-    def __init__(self, DQN_network, loss=T.nn.MSELoss(), tau=100, epsilon=1.0, min_epsilon=0.01, 
-                step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
+    def __init__(self, DQN_network, tau=100, epsilon=1.0, min_epsilon=0.01, step_epsilon=5e-5, 
+                gamma=0.99, mem_size=100000, batch_size=64):
         self.DQN_network = DQN_network
         self.target_network = copy.deepcopy(DQN_network)
-        self.loss = loss
         self.tau = tau
 
         self.gamma = gamma
@@ -51,12 +50,11 @@ class DQN_agent():
         q_pre = self.DQN_network.forward(states)[aux_index, actions]
         q_post = self.DQN_network.forward(new_states)
         q_target = self.target_network.forward(new_states)
-
         q_target[dones] = 0.0
 
         q_updated = rewards + self.gamma * q_target[aux_index, T.argmax(q_post, dim=1)]
 
-        loss = self.loss(q_updated, q_pre).to(self.DQN_network.device)
+        loss = self.DQN_network.loss(q_updated, q_pre).to(self.DQN_network.device)
         loss.backward()
         self.DQN_network.optimizer.step()
         self.epsilon = self.epsilon - self.step_epsilon if self.epsilon > self.min_epsilon \
