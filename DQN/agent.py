@@ -3,65 +3,77 @@ import numpy as np
 from memory import Memory
 import copy
 
+# DQN_agent is the class for the agent implementing a Deep-Q network
 class DQN_agent():
     def __init__(self, DQN_network, loss=T.nn.MSELoss(), tau=250, epsilon=1.0, min_epsilon=0.01, 
                 step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
-        self.DQN_network = DQN_network
-        self.target_network = copy.deepcopy(DQN_network)
-        self.loss = loss
-        self.tau = tau
+        self.DQN_network = DQN_network                      # neural network
+        self.target_network = copy.deepcopy(DQN_network)    # target network is a copy of the main network
+        self.loss = loss                                    # loss function (default: MSE)
+        self.tau = tau                                      # target network update period
 
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.min_epsilon = min_epsilon
-        self.step_epsilon = step_epsilon
-        self.batch_size = batch_size
+        self.gamma = gamma                                  # reward decay
+        self.epsilon = epsilon                              # exploration constant
+        self.min_epsilon = min_epsilon                      # min value for epsilon
+        self.step_epsilon = step_epsilon                    # epsilon deacrease step value
+        self.batch_size = batch_size                        # training batch size
 
-        self.action_space = [i for i in range(DQN_network.n_actions)]
-        self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)
+        self.action_space = [i for i in range(DQN_network.n_actions)]                   
+        self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object of the agent
 
-    def eval(self, state):
+    # get_action returns the action for a given state with the highest q-value
+    def get_action(self, state):
         state = T.tensor(state).to(self.DQN_network.device)
         q_values = self.DQN_network.forward(state)
         action = T.argmax(q_values).item()
 
         return action
 
+    # epsilon_greedy returns the action for a given state using an epsilon greedy training policy
     def epsilon_greedy(self, state):
         if np.random.random() > self.epsilon:
-            action = self.eval(state)
+            action = self.get_action(state)
         else:
             action = np.random.choice(self.action_space)
         
         return action
 
+    # learn executes a learning step for the neural network of the agent
     def learn(self):
+        # if not enought memories (smaller than batch size) then return
         if self.memory.mem_cntr < self.batch_size:
             return
-        self.DQN_network.optimizer.zero_grad()
-        self.update_target_network()
+            
+        self.DQN_network.optimizer.zero_grad()      # network gradients are zeroed out
+        self.update_target_network()                # target network update funcion is called
 
-        aux_index = np.arange(self.batch_size, dtype=np.int32)
+        # memory is sampled and the outputs turned into pytorch tensors
         states, actions, rewards, new_states, dones = self.memory.sample_memory(batch_size=self.batch_size)
         states = T.tensor(states).to(self.DQN_network.device)
         rewards = T.tensor(rewards).to(self.DQN_network.device)
         new_states = T.tensor(new_states).to(self.DQN_network.device)
         dones = T.tensor(dones).to(self.DQN_network.device)
 
-        q_pre = self.DQN_network.forward(states)[aux_index, actions]
+        # q-values are computed
+        q_pre = self.DQN_network.forward(states)[:, actions]
         q_post = self.DQN_network.forward(new_states)
         q_target = self.target_network.forward(new_states)
-
         q_target[dones] = 0.0
 
-        q_updated = rewards + self.gamma * q_target[aux_index, T.argmax(q_post, dim=1)]
+        # updated q-value is computed 
+        q_updated = rewards + self.gamma * q_target[:, T.argmax(q_post, dim=1)]
 
+        # loss is computed and backpropagated
         loss = self.loss(q_updated, q_pre).to(self.DQN_network.device)
         loss.backward()
+        
+        # network performs a learning step and epsilon is updated
         self.DQN_network.optimizer.step()
         self.epsilon = self.epsilon - self.step_epsilon if self.epsilon > self.min_epsilon \
                                                             else self.min_epsilon    
 
+    # update_target_network updates the target network parameters with the parameters of the 
+    # main network (every tau learning steps)
     def update_target_network(self):
         if self.memory.mem_cntr % self.tau == 0:
             self.target_network.load_state_dict(self.DQN_network.state_dict())
