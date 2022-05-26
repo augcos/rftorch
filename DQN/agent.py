@@ -3,7 +3,7 @@ import numpy as np
 from memory import Memory
 import copy
 
-# DQN_agent is the class for the agent implementing a Deep-Q network
+# DQN_agent is the class for the agent implementing a Deep-Q-Network agent
 class DQN_agent():
     def __init__(self, DQN_network, loss=T.nn.MSELoss(), tau=250, epsilon=1.0, min_epsilon=0.01, 
                 step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
@@ -12,7 +12,7 @@ class DQN_agent():
         self.loss = loss                                    # loss function (default: MSE)
         self.tau = tau                                      # target network update period
 
-        self.gamma = gamma                                  # reward decay
+        self.gamma = gamma                                  # reward discount rate
         self.epsilon = epsilon                              # exploration constant
         self.min_epsilon = min_epsilon                      # min value for epsilon
         self.step_epsilon = step_epsilon                    # epsilon deacrease step value
