@@ -18,12 +18,12 @@ class DQN_agent():
         self.step_epsilon = step_epsilon                    # epsilon deacrease step value
         self.batch_size = batch_size                        # training batch size
 
-        self.action_space = [i for i in range(DQN_network.n_actions)]                   
+        self.action_space = [i for i in range(DQN_network.n_actions)]                   # action space
         self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object of the agent
 
     # get_action returns the action for a given state with the highest q-value
     def get_action(self, state):
-        state = T.tensor(state).to(self.DQN_network.device)
+        state = T.tensor(state, dtype=T.float).to(self.DQN_network.device)
         q_values = self.DQN_network.forward(state)
         action = T.argmax(q_values).item()
 
@@ -49,10 +49,10 @@ class DQN_agent():
 
         # memory is sampled and the outputs turned into pytorch tensors
         states, actions, rewards, new_states, dones = self.memory.sample_memory(batch_size=self.batch_size)
-        states = T.tensor(states).to(self.DQN_network.device)
-        rewards = T.tensor(rewards).to(self.DQN_network.device)
-        new_states = T.tensor(new_states).to(self.DQN_network.device)
-        dones = T.tensor(dones).to(self.DQN_network.device)
+        states = T.tensor(states, dtype=T.float).to(self.DQN_network.device)
+        rewards = T.tensor(rewards, dtype=T.float).to(self.DQN_network.device)
+        new_states = T.tensor(new_states, dtype=T.float).to(self.DQN_network.device)
+        dones = T.tensor(dones, dtype=T.bool).to(self.DQN_network.device)
 
         # q-values are computed
         q_pre = self.DQN_network.forward(states)[:, actions]
@@ -97,12 +97,12 @@ class Dueling_DQN_agent():
         self.step_epsilon = step_epsilon                    # epsilon deacrease step value
         self.batch_size = batch_size                        # training batch size
 
-        self.action_space = [i for i in range(DQN_network.n_actions)]                   
+        self.action_space = [i for i in range(DQN_network.n_actions)]                   # action space
         self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object of the agent
 
     # get_action returns the action for a given state with the highest q-value
     def get_action(self, state):
-        state = T.tensor(state).to(self.DQN_network.device)
+        state = T.tensor(state, dtype=T.float).to(self.DQN_network.device)
         _, advantage = self.DQN_network.forward(state)
         action = T.argmax(advantage).item()
 
@@ -128,10 +128,10 @@ class Dueling_DQN_agent():
 
         # memory is sampled and the outputs turned into pytorch tensors
         states, actions, rewards, new_states, dones = self.memory.sample_memory(batch_size=self.batch_size)
-        states = T.tensor(states).to(self.DQN_network.device)
-        rewards = T.tensor(rewards).to(self.DQN_network.device)
-        new_states = T.tensor(new_states).to(self.DQN_network.device)
-        dones = T.tensor(dones).to(self.DQN_network.device)
+        states = T.tensor(states, dtype=T.float).to(self.DQN_network.device)
+        rewards = T.tensor(rewards, dtype=T.float).to(self.DQN_network.device)
+        new_states = T.tensor(new_states, dtype=T.float).to(self.DQN_network.device)
+        dones = T.tensor(dones, dtype=T.bool).to(self.DQN_network.device)
 
         # q-values are computed
         value_pre, advantage_pre = self.DQN_network.forward(states)[:, actions]
