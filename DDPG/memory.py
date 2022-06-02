@@ -2,7 +2,7 @@ import torch as T
 import numpy as np
 
 # Memory is the class for a memory buffer
-class Memory():
+class DDPG_Memory():
     def __init__(self, mem_size, input_dim, action_dim):
         self.mem_size = mem_size
         self.state_memory = np.zeros((self.mem_size, *input_dim), dtype=np.float32)
@@ -12,7 +12,7 @@ class Memory():
         self.done_memory = np.zeros(self.mem_size, dtype=np.bool)
         self.mem_cntr = 0
     
-    # save_memory receives the information from the enviroment and the agent and saves it
+    # save_memory receives the information from the enviroment and agent and saves it
     # in the numpy arrays
     def save_memory(self, state, action, reward, new_state, done):
         index = self.mem_cntr % self.mem_size
