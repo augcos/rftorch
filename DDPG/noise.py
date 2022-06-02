@@ -1,6 +1,6 @@
 import numpy as np
 
-# OUActionNoise is the noise generator for the DDPG Agent
+# OUActionNoise is the noise generator class for the DDPG Agent
 class OUActionNoise(object):
     def __init__(self, mu, sigma=0.15, theta=0.2, dt=1e-2, x0=None):
         self.theta = theta
