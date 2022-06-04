@@ -110,7 +110,7 @@ class Dueling_DQN_agent():
         self.batch_size = batch_size                        # training batch size
 
         self.action_space = [i for i in range(DQN_network.n_actions)]                   # action space
-        self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object 
+        self.memory = DQN_Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object 
 
 
     # get_action returns the action for a given state with the highest q-value
