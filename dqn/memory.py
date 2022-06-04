@@ -2,13 +2,13 @@ import torch as T
 import numpy as np
 
 # Memory is the class for a memory buffer
-class Memory():
-    def __init__(self, mem_size, input_shape):
+class DQN_Memory():
+    def __init__(self, mem_size, input_dims):
         self.mem_size = mem_size
-        self.state_memory = np.zeros((self.mem_size, *input_shape), dtype=np.float32)
+        self.state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)
         self.action_memory = np.zeros(self.mem_size, dtype=np.int32)
         self.reward_memory = np.zeros(self.mem_size, dtype=np.float32)
-        self.new_state_memory = np.zeros((self.mem_size, *input_shape), dtype=np.float32)
+        self.new_state_memory = np.zeros((self.mem_size, *input_dims), dtype=np.float32)
         self.done_memory = np.zeros(self.mem_size, dtype=np.bool)
         self.mem_cntr = 0
     

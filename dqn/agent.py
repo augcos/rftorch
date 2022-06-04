@@ -1,12 +1,13 @@
 import torch as T
 import numpy as np
-from memory import Memory
 import copy
+from memory import DQN_Memory
+from example_networks import ExampleDeepQNetwork, ExampleDuelingDeepQNetwork
 
 # DQN_agent is the class for the agent implementing a Deep-Q-Network agent
 class DQN_agent():
-    def __init__(self, DQN_network, loss=T.nn.MSELoss(), tau=250, epsilon=1.0, min_epsilon=0.01, 
-                step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
+    def __init__(self, DQN_network=ExampleDeepQNetwork(), loss=T.nn.MSELoss(), tau=100, epsilon=1.0, 
+                min_epsilon=0.01, step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
         self.DQN_network = DQN_network                      # neural network
         self.target_network = copy.deepcopy(DQN_network)    # target network is a copy of the main network
         self.loss = loss                                    # loss function (default: MSE)
@@ -19,24 +20,32 @@ class DQN_agent():
         self.batch_size = batch_size                        # training batch size
 
         self.action_space = [i for i in range(DQN_network.n_actions)]                   # action space
-        self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object of the agent
+        self.memory = DQN_Memory(mem_size=mem_size, input_dims=DQN_network.input_dims)    # memory object
+
+    
+    # save_memory is an interface for the save_memory method of the memory object
+    def save_memory(self, state, action, reward, new_state, done):
+        self.memory.save_memory(state, action, reward, new_state, done)
+
 
     # get_action returns the action for a given state with the highest q-value
-    def get_action(self, state):
+    def get_eval_action(self, state):
         state = T.tensor(state, dtype=T.float).to(self.DQN_network.device)
         q_values = self.DQN_network.forward(state)
         action = T.argmax(q_values).item()
 
         return action
 
-    # epsilon_greedy returns the action for a given state using an epsilon greedy training policy
-    def epsilon_greedy(self, state):
+
+    # get_train_action returns the action for a given state using an epsilon greedy policy
+    def get_train_action(self, state):
         if np.random.random() > self.epsilon:
-            action = self.get_action(state)
+            action = self.get_eval_action(state)
         else:
             action = np.random.choice(self.action_space)
         
         return action
+
 
     # learn executes a learning step for the neural network of the agent
     def learn(self):
@@ -48,6 +57,7 @@ class DQN_agent():
         self.update_target_network()                # target network update funcion is called
 
         # memory is sampled and the outputs turned into pytorch tensors
+        aux_index = np.arange(self.batch_size, dtype=np.int32)
         states, actions, rewards, new_states, dones = self.memory.sample_memory(batch_size=self.batch_size)
         states = T.tensor(states, dtype=T.float).to(self.DQN_network.device)
         rewards = T.tensor(rewards, dtype=T.float).to(self.DQN_network.device)
@@ -55,13 +65,13 @@ class DQN_agent():
         dones = T.tensor(dones, dtype=T.bool).to(self.DQN_network.device)
 
         # q-values are computed
-        q_pre = self.DQN_network.forward(states)[:, actions]
+        q_pre = self.DQN_network.forward(states)[aux_index, actions]
         q_post = self.DQN_network.forward(new_states)
         q_target = self.target_network.forward(new_states)
         q_target[dones] = 0.0
 
         # updated q-value is computed 
-        q_updated = rewards + self.gamma * q_target[:, T.argmax(q_post, dim=1)]
+        q_updated = rewards + self.gamma * q_target[aux_index, T.argmax(q_post, dim=1)]
 
         # loss is computed and backpropagated
         loss = self.loss(q_updated, q_pre).to(self.DQN_network.device)
@@ -71,6 +81,7 @@ class DQN_agent():
         self.DQN_network.optimizer.step()
         self.epsilon = self.epsilon - self.step_epsilon if self.epsilon > self.min_epsilon \
                                                             else self.min_epsilon    
+
 
     # update_target_network updates the target network parameters with the parameters of the 
     # main network (every tau learning steps)
@@ -82,10 +93,11 @@ class DQN_agent():
 
 
 
+
 # Dueling_DQN_agent is the class for the agent implementing a DQN agent with dueling improvement
 class Dueling_DQN_agent():
-    def __init__(self, DQN_network, loss=T.nn.MSELoss(), tau=250, epsilon=1.0, min_epsilon=0.01, 
-                step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
+    def __init__(self, DQN_network=ExampleDuelingDeepQNetwork(), loss=T.nn.MSELoss(), tau=250, epsilon=1.0, 
+                min_epsilon=0.01, step_epsilon=5e-5, gamma=0.99, mem_size=100000, batch_size=64):
         self.DQN_network = DQN_network                      # neural network
         self.target_network = copy.deepcopy(DQN_network)    # target network is a copy of the main network
         self.loss = loss                                    # loss function (default: MSE)
@@ -98,24 +110,27 @@ class Dueling_DQN_agent():
         self.batch_size = batch_size                        # training batch size
 
         self.action_space = [i for i in range(DQN_network.n_actions)]                   # action space
-        self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object of the agent
+        self.memory = Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object 
+
 
     # get_action returns the action for a given state with the highest q-value
-    def get_action(self, state):
+    def get_eval_action(self, state):
         state = T.tensor(state, dtype=T.float).to(self.DQN_network.device)
         _, advantage = self.DQN_network.forward(state)
         action = T.argmax(advantage).item()
 
         return action
 
+
     # epsilon_greedy returns the action for a given state using an epsilon greedy training policy
-    def epsilon_greedy(self, state):
+    def get_train_action(self, state):
         if np.random.random() > self.epsilon:
-            action = self.get_action(state)
+            action = self.get_eval_action(state)
         else:
             action = np.random.choice(self.action_space)
         
         return action
+
 
     # learn executes a learning step for the neural network of the agent
     def learn(self):
@@ -154,6 +169,7 @@ class Dueling_DQN_agent():
         self.DQN_network.optimizer.step()
         self.epsilon = self.epsilon - self.step_epsilon if self.epsilon > self.min_epsilon \
                                                             else self.min_epsilon    
+
 
     # update_target_network updates the target network parameters with the parameters of the 
     # main network (every tau learning steps)
