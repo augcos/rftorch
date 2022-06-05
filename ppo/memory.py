@@ -1,8 +1,7 @@
-import torch as T
 import numpy as np
 
 # Memory is the class for a memory buffer
-class Memory():
+class PPO_Memory():
     def __init__(self, batch_size):
         self.batch_size = batch_size
         self.state_memory = []
@@ -13,7 +12,7 @@ class Memory():
         self.done_memory = []
     
     # save_memory receives the information from the enviroment and the agent and saves it
-    # in the numpy arrays
+    # in the lists
     def save_memory(self, state, action, prob, value, reward, done):
         self.state_memory.append(state)
         self.action_memory.append(action)
