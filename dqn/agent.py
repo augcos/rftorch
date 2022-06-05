@@ -28,7 +28,7 @@ class DQN_agent():
         self.memory.save_memory(state, action, reward, new_state, done)
 
 
-    # get_action returns the action for a given state with the highest q-value
+    # get_eval_action returns the action for a given state with the highest q-value
     def get_eval_action(self, state):
         state = T.tensor(state, dtype=T.float).to(self.DQN_network.device)
         q_values = self.DQN_network.forward(state)
@@ -111,6 +111,11 @@ class Dueling_DQN_agent():
 
         self.action_space = [i for i in range(DQN_network.n_actions)]                   # action space
         self.memory = DQN_Memory(mem_size=mem_size, input_shape=DQN_network.input_shape)    # memory object 
+
+
+    # save_memory is an interface for the save_memory method of the memory object
+    def save_memory(self, state, action, reward, new_state, done):
+        self.memory.save_memory(state, action, reward, new_state, done)
 
 
     # get_action returns the action for a given state with the highest q-value
