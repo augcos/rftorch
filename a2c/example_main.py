@@ -1,14 +1,14 @@
-# This is an example script to run a DDPG agent that learns how to play the LunarLanderContinuous-v2 enviroment. The 
-# agent uses the models found in example_networks.py
+# This is an example script to run a A2C agent that learns how to play the CartPole-v0 enviroment. The agent uses the 
+# models found in example_networks.py
 import gym
 import numpy as np
-from agent import DDPGAgent
+from agent import DiscreteA2CAgent
 
 # The continuous lunar lander enviroment is loaded
-env = gym.make('LunarLanderContinuous-v2')
-agent = DDPGAgent(tau=1)
+env = gym.make('CartPole-v0')
+agent = DiscreteA2CAgent()
 score_history = []
-n_episodes = 3000
+n_episodes = 2500
 chkpt_update = 10
 
 # agent is trained in the enviroment
@@ -17,10 +17,9 @@ for i in range(n_episodes):
     score = 0
     state = env.reset()
     while not done:
-        action = agent.get_train_action(state).cpu().detach().numpy()
+        action = agent.get_action(state)
         new_state, reward, done, info = env.step(action)
-        agent.save_memory(state, action, reward, new_state, done)
-        agent.learn()
+        agent.learn(state, reward, new_state, done)
         state = new_state
         score += reward
     score_history.append(score)

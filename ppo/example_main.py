@@ -1,11 +1,13 @@
+# This is an example script to run a PPO agent that learns how to play the CartPole-v0 enviroment. The agent uses the
+# models found in example_networks.py
 import gym
 import numpy as np
-from agent import Discrete_PPO_Agent
+from agent import DiscretePPOAgent
 from example_networks import ExampleActor, ExampleCritic
 
-# The lunar lander enviroment is loaded
+# The cart pole enviroment is loaded
 env = gym.make('CartPole-v0')
-agent = Discrete_PPO_Agent()
+agent = DiscretePPOAgent()
 N=20
 score_history = []
 n_episodes = 1000
@@ -31,3 +33,8 @@ for i in range(n_episodes):
     score_history.append(score)
     print("Episode %d - Score: %.2f - Average score: %.2f - Learning steps: %d" 
             % (i, score, np.mean(score_history[-100:]), learn_iters))
+
+    # actor and critic models are saved every chkpt_update episodes
+    if i%chkpt_update==0:
+        agent.actor.save_checkpoint()
+        agent.critic.save_checkpoint()

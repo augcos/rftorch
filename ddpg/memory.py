@@ -1,8 +1,8 @@
 import torch as T
 import numpy as np
 
-# DDPG_Memory is the class for a memory buffer
-class DDPG_Memory():
+# DDPGMemory is the class for a memory buffer
+class DDPGMemory():
     # the memory is initialized
     def __init__(self, mem_size, input_dims, action_dims):
         self.mem_size = mem_size

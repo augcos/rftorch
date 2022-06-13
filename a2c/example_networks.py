@@ -1,24 +1,23 @@
 import torch as T
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
-from torch.distributions.categorical import Categorical
 
 # ExampleActor is an example of critic network for the DDPG agent
 class ExampleActor(nn.Module):
-    def __init__(self, lr=0.0001, input_dims=[4], fc1_dims=256, fc2_dims=256, n_actions=2, 
+    def __init__(self, lr=5e-5, input_dims=[4], fc1_dims=1024, fc2_dims=512, n_actions=2, 
                     chkpt_path="actor.pt"):
         super(ExampleActor, self).__init__()
+        self.input_dims = input_dims
+        self.n_actions = n_actions
+        self.fc1_dims = fc1_dims
+        self.fc2_dims = fc2_dims
         self.chkpt_path = chkpt_path
 
         # full network block
-        self.actor = nn.Sequential(
-            nn.Linear(*input_dims, fc1_dims),
-            nn.ReLU(),
-            nn.Linear(fc1_dims, fc2_dims),
-            nn.ReLU(),
-            nn.Linear(fc2_dims, n_actions),
-            nn.Softmax(dim=-1)
-        )
+        self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
+        self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
+        self.pi = nn.Linear(self.fc2_dims, self.n_actions)
 
         # ADAM optimizer
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
@@ -27,9 +26,11 @@ class ExampleActor(nn.Module):
         self.to(self.device)
 
     def forward(self, state):
-        dist = self.actor(state)
-        dist = Categorical(dist)
-        return dist
+        x = F.relu(self.fc1(state))
+        x = F.relu(self.fc2(x))
+        pi = F.softmax(self.pi(x))
+        
+        return pi
         
     # save_checkpoint saves the model
     def save_checkpoint(self):
@@ -42,19 +43,18 @@ class ExampleActor(nn.Module):
 
 # ExampleCritic is an example of critic network for the DDPG agent
 class ExampleCritic(nn.Module):
-    def __init__(self, lr=0.0001, input_dims=[4], fc1_dims=256, fc2_dims=256, 
+    def __init__(self, lr=5e-5, input_dims=[4], fc1_dims=1024, fc2_dims=512, 
                     chkpt_path="critic.pt"):
         super(ExampleCritic, self).__init__()
+        self.input_dims = input_dims
+        self.fc1_dims = fc1_dims
+        self.fc2_dims = fc2_dims
         self.chkpt_path = chkpt_path
         
         # full network block
-        self.critic = nn.Sequential(
-            nn.Linear(*input_dims, fc1_dims),
-            nn.ReLU(),
-            nn.Linear(fc1_dims, fc2_dims),
-            nn.ReLU(),
-            nn.Linear(fc2_dims, 1)
-        )
+        self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
+        self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
+        self.v = nn.Linear(self.fc2_dims, 1)
 
         # ADAM optimizer
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
@@ -63,8 +63,11 @@ class ExampleCritic(nn.Module):
         self.to(self.device)
 
     def forward(self, state):
-        value = self.critic(state)
-        return value
+        x = F.relu(self.fc1(state))
+        x = F.relu(self.fc2(x))
+        v = self.v(x)
+
+        return v
         
     # save_checkpoint saves the model
     def save_checkpoint(self):

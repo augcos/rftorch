@@ -2,11 +2,11 @@ import torch as T
 import numpy as np
 from noise import OUActionNoise
 import copy
-from memory import DDPG_Memory
+from memory import DDPGMemory
 from example_networks import ExampleActor, ExampleCritic
 
 # DDPG_Agent is the class for the agent implementing a Deep Deterministic Policy Gradient agent
-class DDPG_Agent():
+class DDPGAgent():
     def __init__(self, actor=ExampleActor(), critic=ExampleCritic(), tau=0.001, gamma=0.99, 
                 mem_size=1000000, batch_size=64):        
         self.actor = actor                              # actor neural network
@@ -20,7 +20,7 @@ class DDPG_Agent():
         self.device = self.actor.device
 
         self.noise = OUActionNoise(mu=np.zeros(self.actor.n_actions))               # noise generator
-        self.memory = DDPG_Memory(mem_size=mem_size, input_dims=actor.input_dims,   # memory object
+        self.memory = DDPGMemory(mem_size=mem_size, input_dims=actor.input_dims,   # memory object
                                 action_dims=actor.n_actions)      
 
 

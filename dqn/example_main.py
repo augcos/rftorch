@@ -28,6 +28,6 @@ for i in range(n_episodes):
     print("Episode %d - Score: %.2f - Average score: %.2f - Epsilon: %.2f" 
             % (i, score, np.mean(score_history[-100:]), agent.epsilon))
 
-    # actor and critic models are saved every chkpt_update episodes
+    # model is saved every chkpt_update episodes
     if i%chkpt_update==0:
         agent.DQN_network.save_checkpoint()

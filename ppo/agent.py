@@ -3,8 +3,8 @@ import numpy as np
 from memory import PPO_Memory
 from example_networks import ExampleActor, ExampleCritic
 
-# Discrete_PPO_Agent is the class for the agent implementing a Deep-Q-Network agent
-class Discrete_PPO_Agent():
+# DiscretePPOAgent is the class for the agent implementing a PPO agent with a discree action space
+class DiscretePPOAgent():
     def __init__(self, actor=ExampleActor(), critic=ExampleCritic(), gamma=0.99, gae=0.95, 
                     clipping=0.2, n_epochs=4, batch_size=5):
         self.actor = actor                      # actor network
@@ -105,4 +105,3 @@ class Discrete_PPO_Agent():
         
         # we clear the memory
         self.memory.clear_memory()
-
