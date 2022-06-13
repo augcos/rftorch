@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-# ExampleDeepQNetwork is an example of deep q-network for the DQN agent
+# ExampleDeepQNetwork is an example of Deep Q-Network for the DQN agent
 class ExampleDeepQNetwork(nn.Module):
     def __init__(self, lr=0.0005, input_dims=[8], fc1_dims=256, fc2_dims=256, n_actions=4,
                 chkpt_path="dqn.pt"):
@@ -42,7 +42,7 @@ class ExampleDeepQNetwork(nn.Module):
         self.load_state_dict(T.load(self.chkpt_path))
 
 
-# ExampleDeepQNetwork is an example of deep q-network for the DQN agent
+# ExampleDuelingDeepQNetwork is an example of deep q-network for the Dueling DQN agent
 class ExampleDuelingDeepQNetwork(nn.Module):
     def __init__(self, lr=0.001, input_dims=[8], fc1_dims=256, fc2_dims=256, n_actions=4,
                 chkpt_path="dqn.pt"):

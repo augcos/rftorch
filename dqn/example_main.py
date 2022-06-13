@@ -1,11 +1,12 @@
+# This is an example script to run a DQN agent that learns how to play the LunarLander-v2 enviroment. The agent uses the
+# models found in example_networks.py
 import gym
 import numpy as np
-from agent import DQN_agent
-from example_networks import ExampleDeepQNetwork
+from agent import DQNAgent
 
 # The lunar lander enviroment is loaded
 env = gym.make('LunarLander-v2')
-agent = DQN_agent()
+agent = DQNAgent()
 score_history = []
 eps_history = []
 n_episodes = 1000
