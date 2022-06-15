@@ -1,8 +1,8 @@
 import torch as T
 import numpy as np
 import copy
-from memory import DQN_Memory
-from example_networks import ExampleDeepQNetwork, ExampleDuelingDeepQNetwork
+from rftorch.dqn.memory import DQNMemory
+from rftorch.dqn.example_networks import ExampleDeepQNetwork, ExampleDuelingDeepQNetwork
 
 # DQN_agent is the class for the agent implementing a Double Deep-Q-Network agent
 class DQNAgent():
@@ -20,7 +20,7 @@ class DQNAgent():
         self.batch_size = batch_size                        # training batch size
 
         self.action_space = [i for i in range(DQN_network.n_actions)]                   # action space
-        self.memory = DQN_Memory(mem_size=mem_size, input_dims=DQN_network.input_dims)    # memory object
+        self.memory = DQNMemory(mem_size=mem_size, input_dims=DQN_network.input_dims)    # memory object
 
     
     # save_memory is an interface for the save_memory method of the memory object
@@ -112,7 +112,7 @@ class DuelingDQNAgent():
         self.batch_size = batch_size                        # training batch size
 
         self.action_space = [i for i in range(DQN_network.n_actions)]                       # action space
-        self.memory = DQN_Memory(mem_size=mem_size, input_dims=DQN_network.input_dims)      # memory object 
+        self.memory = DQNMemory(mem_size=mem_size, input_dims=DQN_network.input_dims)      # memory object 
 
 
     # save_memory is an interface for the save_memory method of the memory object

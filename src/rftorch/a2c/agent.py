@@ -1,5 +1,5 @@
 import torch as T
-from example_networks import ExampleActor, ExampleCritic
+from rftorch.a2c.example_networks import ExampleActor, ExampleCritic
 
 # ContinuousA2CAgent is the class for implementing an A2C agent with a continuous action space
 class ContinuousA2CAgent():

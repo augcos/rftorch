@@ -1,9 +1,9 @@
 import torch as T
 import numpy as np
-from noise import OUActionNoise
+from rftorch.ddpg.noise import OUActionNoise
 import copy
-from memory import DDPGMemory
-from example_networks import ExampleActor, ExampleCritic
+from rftorch.ddpg.memory import DDPGMemory
+from rftorch.ddpg.example_networks import ExampleActor, ExampleCritic
 
 # DDPG_Agent is the class for the agent implementing a Deep Deterministic Policy Gradient agent
 class DDPGAgent():

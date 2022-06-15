@@ -1,8 +1,7 @@
-import random
 import numpy as np
 
 # Memory is the class for a memory buffer
-class DQN_Memory():
+class DQNMemory():
     def __init__(self, mem_size, input_dims):
         self.mem_size = mem_size
         self.mem_cntr = 0

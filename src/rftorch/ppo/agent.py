@@ -1,7 +1,7 @@
 import torch as T
 import numpy as np
-from memory import PPO_Memory
-from example_networks import ExampleActor, ExampleCritic
+from rftorch.ppo.memory import PPO_Memory
+from rftorch.ppo.example_networks import ExampleActor, ExampleCritic
 
 # DiscretePPOAgent is the class for the agent implementing a PPO agent with a discree action space
 class DiscretePPOAgent():
