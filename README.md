@@ -6,6 +6,12 @@ Each DRL algorithm includes an example_main.py file implementing an test case of
 
 This library is still in very early development, expect things to break. Future plans include improved testing and expanding the number of DRL agorithms implemented.
 
+## How to install
+Install the rftorch package using pip:
+```
+pip install rftorch
+```
+
 ## Implemented agents
 * __[Advantage Actor-Critic (A2C)](https://arxiv.org/abs/1602.01783)__
 * __[Deep Deterministic Policy Gradient (DDPG)](https://arxiv.org/abs/1509.02971)__
