@@ -1,0 +1,4 @@
+rftorch.egg-info
+**/__pycache__
+rftorch/examples/**/*.pkl
+rftorch/examples/**/*vizdoom*
